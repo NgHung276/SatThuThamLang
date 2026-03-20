@@ -1,323 +1,61 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LocalPlayer = Players.LocalPlayer
+--[[ Protected by NgHung ]]
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-    Name = "Vortex Hub - Sát thủ thầm lặng [Premium]",
-    LoadingTitle = "Đang tải Vortex Hub",
-    LoadingSubtitle = "by NgHung",
-    ConfigurationSaving = {
-        Enabled = false
-    },
-    Discord = {
-        Enabled = false
-    },
-    KeySystem = false
-})
-
-_G.AutoRound = false
-_G.KillAura = false
-_G.AuraRange = 20
-_G.ESPEnabled = false
-_G.ESPColor = Color3.fromRGB(255, 0, 0)
-_G.WalkSpeed = 16
-_G.JumpPower = 50
-_G.AutoEquip = false
-_G.InMatch = false
-_G.LastUIScan = 0
-
-local CombatTab = Window:CreateTab("⚔️ Combat", nil)
-local VisualTab = Window:CreateTab("👁️ Visuals", nil)
-local MoveTab = Window:CreateTab("🏃 Movement", nil)
-local InfoTab = Window:CreateTab("⚙️ Info & Link", nil)
-
-CombatTab:CreateToggle({
-    Name = "Auto Round (Ghost Sensor + Aim Kill)",
-    CurrentValue = false,
-    Flag = "AutoRoundToggle",
-    Callback = function(Value)
-        _G.AutoRound = Value
-        _G.InMatch = false
-        if Value then
-            Rayfield:Notify({Title = "Vortex System", Content = "Đã bật chế độ tàn sát tự động!", Duration = 2})
-        end
-    end
-})
-
-CombatTab:CreateToggle({
-    Name = "Kill Aura (Chém Bluetooth tự động gần)",
-    CurrentValue = false,
-    Flag = "KillAuraToggle",
-    Callback = function(Value)
-        _G.KillAura = Value
-    end
-})
-
-CombatTab:CreateSlider({
-    Name = "Phạm vi Kill Aura (Studs)",
-    Range = {10, 1000},
-    Increment = 1,
-    CurrentValue = 20,
-    Flag = "AuraSlider",
-    Callback = function(Value)
-        _G.AuraRange = Value
-    end
-})
-
-VisualTab:CreateToggle({
-    Name = "Bật ESP (Xuyên Tàng Hình)",
-    CurrentValue = false,
-    Flag = "ESPToggle",
-    Callback = function(Value)
-        _G.ESPEnabled = Value
-    end
-})
-
-VisualTab:CreateColorPicker({
-    Name = "Chọn Màu ESP",
-    Color = Color3.fromRGB(255, 0, 0),
-    Flag = "ESPColorPicker",
-    Callback = function(Value)
-        _G.ESPColor = Value
-    end
-})
-
-MoveTab:CreateToggle({
-    Name = "Auto Equip Vũ Khí",
-    CurrentValue = false,
-    Flag = "EquipToggle",
-    Callback = function(Value)
-        _G.AutoEquip = Value
-    end
-})
-
-MoveTab:CreateSlider({
-    Name = "Hack Tốc Độ (WalkSpeed)",
-    Range = {16, 200},
-    Increment = 1,
-    CurrentValue = 16,
-    Flag = "SpeedSlider",
-    Callback = function(Value)
-        _G.WalkSpeed = Value
-    end
-})
-
-MoveTab:CreateSlider({
-    Name = "Hack Nhảy Cao (JumpPower)",
-    Range = {50, 300},
-    Increment = 1,
-    CurrentValue = 50,
-    Flag = "JumpSlider",
-    Callback = function(Value)
-        _G.JumpPower = Value
-    end
-})
-
-InfoTab:CreateLabel("Made with by NgHung")
-
-InfoTab:CreateButton({
-    Name = "Tham gia Discord Server",
-    Callback = function()
-        setclipboard("Link Discord Server Nốt Found!")
-        Rayfield:Notify({Title = "Xảy ra lỗi!", Content = "Link Discord hiện tại chưa được cập nhật!", Duration = 3})
-    end
-})
-
-local function KillTarget(target, dist)
-    local char = LocalPlayer.Character
-    local tool = char and char:FindFirstChildOfClass("Tool")
-    if not tool or not target:FindFirstChild("HumanoidRootPart") then return end
-    local args = {
-        [1] = "AttemptWeaponHit",
-        [2] = {
-            ["attackCycleData"] = {["knockbackMul"] = 1, ["slowMult"] = 0.2, ["slowTime"] = 1.5, ["lungeMul"] = 1, ["attackTime"] = 0.65},
-            ["knockback"] = 50,
-            ["shouldLock"] = true,
-            ["slowTime"] = 1.5,
-            ["shouldLunge"] = true,
-            ["isCritical"] = true,
-            ["weaponDefinition"] = {
-                ["attackCycle"] = {
-                    ["1"] = {["knockbackMul"] = 1, ["slowMult"] = 0.2, ["slowTime"] = 1.5, ["lungeMul"] = 1, ["attackTime"] = 0.65},
-                    ["2"] = {["lungeMul"] = 1, ["slowMult"] = 0.2, ["slowTime"] = 1.5, ["knockbackMul"] = 1, ["attackTime"] = 0.65},
-                    ["3"] = {["lungeMult"] = 0.75, ["slowMult"] = 0.2, ["slowTime"] = 1.5, ["knockbackMul"] = 1.5, ["attackTime"] = 0.716},
-                    ["4"] = {["lungeMul"] = 2.25, ["slowTime"] = 1.5, ["slowMult"] = 0.2, ["knockbackMul"] = 2.25, ["attackTime"] = 0.983}
-                },
-                ["attackOrder"] = {"1", "2", "3", "4"}
-            },
-            ["attackCooldown"] = 0.01,
-            ["shouldSlow"] = true,
-            ["lungeKnockback"] = 55,
-            ["hitboxSize"] = Vector3.new(120, 120, 120),
-            ["slowMult"] = 0.2,
-            ["cycleIndex"] = 1,
-            ["hitboxOffset"] = Vector3.new(0, 0, 0),
-            ["tool"] = tool,
-            ["damage"] = 999999999
-        },
-        [3] = {
-            [1] = {
-                ["direction"] = (target.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Unit,
-                ["isClosestEnemy"] = true,
-                ["origin"] = char.HumanoidRootPart.Position,
-                ["enemyModel"] = target,
-                ["distance"] = dist,
-                ["knockback"] = 0
-            }
-        }
-    }
-    task.spawn(function()
-        ReplicatedStorage.Events.GameRemoteFunction:InvokeServer(unpack(args))
-    end)
-end
-
-local function IsMatchOver()
-    local pgui = LocalPlayer:FindFirstChild("PlayerGui")
-    if pgui then
-        for _, obj in pairs(pgui:GetDescendants()) do
-            if (obj:IsA("TextLabel") or obj:IsA("TextBox")) and obj.Visible and obj.Text ~= "" then
-                local t = string.lower(obj.Text)
-                if string.find(t, "thắng") or string.find(t, "dịch chuyển") or string.find(t, "thắng!") then
-                    return true
-                end
-            end
-        end
-    end
-    return false
-end
-
-RunService.Stepped:Connect(function()
-    local char = LocalPlayer.Character
-    if char and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
-        char.Humanoid.WalkSpeed = _G.WalkSpeed
-        char.Humanoid.JumpPower = _G.JumpPower
-        if _G.AutoEquip then
-            local bp = LocalPlayer:FindFirstChild("Backpack")
-            if bp then
-                local tool = bp:FindFirstChildOfClass("Tool")
-                if tool then char.Humanoid:EquipTool(tool) end
-            end
-        end
-    end
-end)
-
-task.spawn(function()
-    while task.wait(0.05) do
-        if _G.ESPEnabled then
-            for _, enemy in pairs(Players:GetPlayers()) do
-                if enemy ~= LocalPlayer and enemy.Character then
-                    local eHum = enemy.Character:FindFirstChild("Humanoid")
-                    local eRoot = enemy.Character:FindFirstChild("HumanoidRootPart")
-                    if eHum and eHum.Health > 0 and eRoot then
-                        local hl = enemy.Character:FindFirstChild("VortexHL")
-                        if not hl then
-                            hl = Instance.new("Highlight")
-                            hl.Name = "VortexHL"
-                            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                            hl.Parent = enemy.Character
-                        end
-                        hl.FillColor = _G.ESPColor
-                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        hl.FillTransparency = 0.5
-                        local tracker = eRoot:FindFirstChild("VortexTracker")
-                        if not tracker then
-                            tracker = Instance.new("BillboardGui")
-                            tracker.Name = "VortexTracker"
-                            tracker.AlwaysOnTop = true
-                            tracker.Size = UDim2.new(4, 0, 5, 0)
-                            local frame = Instance.new("Frame")
-                            frame.Name = "FrameColor"
-                            frame.Size = UDim2.new(1, 0, 1, 0)
-                            frame.BackgroundTransparency = 0.6
-                            frame.BorderSizePixel = 2
-                            frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
-                            frame.Parent = tracker
-                            tracker.Parent = eRoot
-                        end
-                        if tracker:FindFirstChild("FrameColor") then
-                            tracker.FrameColor.BackgroundColor3 = _G.ESPColor
-                        end
-                        for _, part in pairs(enemy.Character:GetChildren()) do
-                            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Transparency == 1 then
-                                part.Transparency = 0.5 
-                            end
-                        end
-                    else
-                        if enemy.Character:FindFirstChild("VortexHL") then enemy.Character.VortexHL:Destroy() end
-                        if eRoot and eRoot:FindFirstChild("VortexTracker") then eRoot.VortexTracker:Destroy() end
-                    end
-                end
-            end
-        else
-            for _, enemy in pairs(Players:GetPlayers()) do
-                if enemy.Character then
-                    if enemy.Character:FindFirstChild("VortexHL") then enemy.Character.VortexHL:Destroy() end
-                    local eRoot = enemy.Character:FindFirstChild("HumanoidRootPart")
-                    if eRoot and eRoot:FindFirstChild("VortexTracker") then eRoot.VortexTracker:Destroy() end
-                end
-            end
-        end
-        if LocalPlayer.Character then
-            local myChar = LocalPlayer.Character
-            local myRoot = myChar:FindFirstChild("HumanoidRootPart")
-            local myHum = myChar:FindFirstChild("Humanoid")
-            local myHead = myChar:FindFirstChild("Head")
-            if myRoot and myHum and myHum.Health > 0 and myHead then
-                local tool = myChar:FindFirstChildOfClass("Tool")
-                
-                if _G.AutoRound then
-                    local isMatchOverUI = false
-                    if tick() - _G.LastUIScan > 0.5 then
-                        _G.LastUIScan = tick()
-                        if IsMatchOver() then _G.InMatch = false isMatchOverUI = true end
-                    end
-                    if not _G.InMatch and myHead.Transparency >= 0.5 and not isMatchOverUI then
-                        _G.InMatch = true
-                    end
-                    if _G.InMatch and tool then
-                        local hasFired = false
-                        for _, enemy in pairs(Players:GetPlayers()) do
-                            if enemy ~= LocalPlayer and enemy.Character then
-                                local eHum = enemy.Character:FindFirstChild("Humanoid")
-                                local eHead = enemy.Character:FindFirstChild("Head")
-                                local eRoot = enemy.Character:FindFirstChild("HumanoidRootPart")
-                                if eHum and eHum.Health > 0 and eHead and eRoot and not enemy.Character:FindFirstChildOfClass("ForceField") then
-                                    if eHead.Transparency >= 0.5 or enemy.Character:FindFirstChildOfClass("Tool") then
-                                        local dist = (myRoot.Position - eRoot.Position).Magnitude
-                                        KillTarget(enemy.Character, dist)
-                                        hasFired = true
-                                    end
-                                end
-                            end
-                        end
-                        if hasFired and tool.Parent == myChar then
-                            tool:Activate()
-                            task.wait(0.05)
-                            tool:Deactivate()
-                            task.wait(0.2)
-                        end
-                    end
-                end
-
-                if _G.KillAura and tool then
-                    for _, enemy in pairs(Players:GetPlayers()) do
-                        if enemy ~= LocalPlayer and enemy.Character then
-                            local eRoot = enemy.Character:FindFirstChild("HumanoidRootPart")
-                            local eHum = enemy.Character:FindFirstChild("Humanoid")
-                            if eRoot and eHum and eHum.Health > 0 and not enemy.Character:FindFirstChildOfClass("ForceField") then
-                                local dist = (myRoot.Position - eRoot.Position).Magnitude
-                                if dist <= _G.AuraRange then
-                                    KillTarget(enemy.Character, dist)
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
+( function (...) local Players = game:GetService("\080\108\097\121\101\114\115") local RunService = game:GetService("\082\117\110\083\101\114\118\105\099\101") local _IIIlIlIIIl = game:GetService("\067\111\114\101\071\117\105") local ReplicatedStorage = game:GetService("\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101") local _IlIIllIllI = Players.LocalPlayer local _llIlIIlIlI = loadstring(game:HttpGet("\104\116\116\112\115\058\047\047\115\105\114\105\117\115\046\109\101\110\117\047\114\097\121\102\105\101\108\100"))() local _IIIIlllIII = _llIlIIlIlI:CreateWindow({ Name = "\086\111\114\116\101\120\032\072\117\098\032\045\032\083\225\116\032\116\104\7911\032\116\104\7847\109\032\108\7863\110\103\032\091\080\114\101\109\105\117\109\093", LoadingTitle = "\272\097\110\103\032\116\7843\105\032\086\111\114\116\101\120\032\072\117\098", LoadingSubtitle = "\098\121\032\078\103\072\117\110\103", ConfigurationSaving = { Enabled = false }, Discord = { Enabled = false }, KeySystem = false }) _G.AutoRound = false _G.KillAura = false _G.AuraRange = 0x14 _G.ESPEnabled = false _G.ESPColor = Color3.fromRGB(0xFF, 0x0, 0x0) _G.WalkSpeed = 0x10 _G.JumpPower = 0x32 _G.AutoEquip = false _G.InMatch = false _G.LastUIScan = 0x0 local _IIlllIIIll = _IIIIlllIII:CreateTab("\9876\65039\032\067\111\109\098\097\116", nil) local _lIIllIIlll = _IIIIlllIII:CreateTab("\55357\56385\65039\032\086\105\115\117\097\108\115", nil) local _IlIIIlIIII = _IIIIlllIII:CreateTab("\55356\57283\032\077\111\118\101\109\101\110\116", nil) local _IlllIllIll = _IIIIlllIII:CreateTab("\9881\65039\032\073\110\102\111\032\038\032\076\105\110\107", nil) _IIlllIIIll:CreateToggle({ Name = "\065\117\116\111\032\082\111\117\110\100\032\040\071\104\111\115\116\032\083\101\110\115\111\114\032\043\032\065\105\109\032\075\105\108\108\041", CurrentValue = false, Flag = "\065\117\116\111\082\111\117\110\100\084\111\103\103\108\101", Callback = function (Value) _G.AutoRound = Value _G.InMatch = false if Value then _llIlIIlIlI:Notify({Title = "\086\111\114\116\101\120\032\083\121\115\116\101\109", Content = "\272\227\032\098\7853\116\032\099\104\7871\032\273\7897\032\116\224\110\032\115\225\116\032\116\7921\032\273\7897\110\103\033", Duration = 0x2}) end
+ end
+ }) _IIlllIIIll:CreateToggle({ Name = "\075\105\108\108\032\065\117\114\097\032\040\067\104\233\109\032\066\108\117\101\116\111\111\116\104\032\116\7921\032\273\7897\110\103\032\103\7847\110\041", CurrentValue = false, Flag = "\075\105\108\108\065\117\114\097\084\111\103\103\108\101", Callback = function (Value) _G.KillAura = Value end
+ }) _IIlllIIIll:CreateSlider({ Name = "\080\104\7841\109\032\118\105\032\075\105\108\108\032\065\117\114\097\032\040\083\116\117\100\115\041", Range = {0xA, 0x3E8}, Increment = 0x1, CurrentValue = 0x14, Flag = "\065\117\114\097\083\108\105\100\101\114", Callback = function (Value) _G.AuraRange = Value end
+ }) _lIIllIIlll:CreateToggle({ Name = "\066\7853\116\032\069\083\080\032\040\088\117\121\234\110\032\084\224\110\103\032\072\236\110\104\041", CurrentValue = false, Flag = "\069\083\080\084\111\103\103\108\101", Callback = function (Value) _G.ESPEnabled = Value end
+ }) _lIIllIIlll:CreateColorPicker({ Name = "\067\104\7885\110\032\077\224\117\032\069\083\080", Color = Color3.fromRGB(0xFF, 0x0, 0x0), Flag = "\069\083\080\067\111\108\111\114\080\105\099\107\101\114", Callback = function (Value) _G.ESPColor = Value end
+ }) _IlIIIlIIII:CreateToggle({ Name = "\065\117\116\111\032\069\113\117\105\112\032\086\361\032\075\104\237", CurrentValue = false, Flag = "\069\113\117\105\112\084\111\103\103\108\101", Callback = function (Value) _G.AutoEquip = Value end
+ }) _IlIIIlIIII:CreateSlider({ Name = "\072\097\099\107\032\084\7889\099\032\272\7897\032\040\087\097\108\107\083\112\101\101\100\041", Range = {0x10, 0xC8}, Increment = 0x1, CurrentValue = 0x10, Flag = "\083\112\101\101\100\083\108\105\100\101\114", Callback = function (Value) _G.WalkSpeed = Value end
+ }) _IlIIIlIIII:CreateSlider({ Name = "\072\097\099\107\032\078\104\7843\121\032\067\097\111\032\040\074\117\109\112\080\111\119\101\114\041", Range = {0x32, 0x12C}, Increment = 0x1, CurrentValue = 0x32, Flag = "\074\117\109\112\083\108\105\100\101\114", Callback = function (Value) _G.JumpPower = Value end
+ }) _IlllIllIll:CreateLabel("\077\097\100\101\032\119\105\116\104\032\098\121\032\078\103\072\117\110\103") _IlllIllIll:CreateButton({ Name = "\084\104\097\109\032\103\105\097\032\068\105\115\099\111\114\100\032\083\101\114\118\101\114", Callback = function () setclipboard("\076\105\110\107\032\068\105\115\099\111\114\100\032\083\101\114\118\101\114\032\078\7889\116\032\070\111\117\110\100\033") _llIlIIlIlI:Notify({Title = "\088\7843\121\032\114\097\032\108\7895\105\033", Content = "\076\105\110\107\032\068\105\115\099\111\114\100\032\104\105\7879\110\032\116\7841\105\032\099\104\432\097\032\273\432\7907\099\032\099\7853\112\032\110\104\7853\116\033", Duration = 0x3}) end
+ }) local function _IIlIllIlII(target, _lIIIIllIlI) local _llllIIIIII = _IlIIllIllI.Character local _IlIIIIIlIl = _llllIIIIII and _llllIIIIII:FindFirstChildOfClass("\084\111\111\108") if not _IlIIIIIlIl or not target:FindFirstChild("\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116") then return end
+ local _IIIIIlIIII = { [0x1] = "\065\116\116\101\109\112\116\087\101\097\112\111\110\072\105\116", [0x2] = { ["\097\116\116\097\099\107\067\121\099\108\101\068\097\116\097"] = {["\107\110\111\099\107\098\097\099\107\077\117\108"] = 0x1, ["\115\108\111\119\077\117\108\116"] = 0.2, ["\115\108\111\119\084\105\109\101"] = 1.5, ["\108\117\110\103\101\077\117\108"] = 0x1, ["\097\116\116\097\099\107\084\105\109\101"] = 0.65}, ["\107\110\111\099\107\098\097\099\107"] = 0x32, ["\115\104\111\117\108\100\076\111\099\107"] = true, ["\115\108\111\119\084\105\109\101"] = 1.5, ["\115\104\111\117\108\100\076\117\110\103\101"] = true, ["\105\115\067\114\105\116\105\099\097\108"] = true, ["\119\101\097\112\111\110\068\101\102\105\110\105\116\105\111\110"] = { ["\097\116\116\097\099\107\067\121\099\108\101"] = { ["\049"] = {["\107\110\111\099\107\098\097\099\107\077\117\108"] = 0x1, ["\115\108\111\119\077\117\108\116"] = 0.2, ["\115\108\111\119\084\105\109\101"] = 1.5, ["\108\117\110\103\101\077\117\108"] = 0x1, ["\097\116\116\097\099\107\084\105\109\101"] = 0.65}, ["\050"] = {["\108\117\110\103\101\077\117\108"] = 0x1, ["\115\108\111\119\077\117\108\116"] = 0.2, ["\115\108\111\119\084\105\109\101"] = 1.5, ["\107\110\111\099\107\098\097\099\107\077\117\108"] = 0x1, ["\097\116\116\097\099\107\084\105\109\101"] = 0.65}, ["\051"] = {["\108\117\110\103\101\077\117\108\116"] = 0.75, ["\115\108\111\119\077\117\108\116"] = 0.2, ["\115\108\111\119\084\105\109\101"] = 1.5, ["\107\110\111\099\107\098\097\099\107\077\117\108"] = 1.5, ["\097\116\116\097\099\107\084\105\109\101"] = 0.716}, ["\052"] = {["\108\117\110\103\101\077\117\108"] = 2.25, ["\115\108\111\119\084\105\109\101"] = 1.5, ["\115\108\111\119\077\117\108\116"] = 0.2, ["\107\110\111\099\107\098\097\099\107\077\117\108"] = 2.25, ["\097\116\116\097\099\107\084\105\109\101"] = 0.983} }, ["\097\116\116\097\099\107\079\114\100\101\114"] = {"\049", "\050", "\051", "\052"} }, ["\097\116\116\097\099\107\067\111\111\108\100\111\119\110"] = 0.01, ["\115\104\111\117\108\100\083\108\111\119"] = true, ["\108\117\110\103\101\075\110\111\099\107\098\097\099\107"] = 0x37, ["\104\105\116\098\111\120\083\105\122\101"] = Vector3.new(0x78, 0x78, 0x78), ["\115\108\111\119\077\117\108\116"] = 0.2, ["\099\121\099\108\101\073\110\100\101\120"] = 0x1, ["\104\105\116\098\111\120\079\102\102\115\101\116"] = Vector3.new(0x0, 0x0, 0x0), ["\116\111\111\108"] = _IlIIIIIlIl, ["\100\097\109\097\103\101"] = 0x3B9AC9FF }, [0x3] = { [0x1] = { ["\100\105\114\101\099\116\105\111\110"] = (target.HumanoidRootPart.Position - _llllIIIIII.HumanoidRootPart.Position).Unit, ["\105\115\067\108\111\115\101\115\116\069\110\101\109\121"] = true, ["\111\114\105\103\105\110"] = _llllIIIIII.HumanoidRootPart.Position, ["\101\110\101\109\121\077\111\100\101\108"] = target, ["\100\105\115\116\097\110\099\101"] = _lIIIIllIlI, ["\107\110\111\099\107\098\097\099\107"] = 0x0 } } } task.spawn( function () ReplicatedStorage.Events.GameRemoteFunction:InvokeServer(unpack(_IIIIIlIIII)) end
+ ) end
+ local function _lIIllllIIl() local _llllIIlIII = _IlIIllIllI:FindFirstChild("\080\108\097\121\101\114\071\117\105") if _llllIIlIII then for _, obj in pairs(_llllIIlIII:GetDescendants()) do if (obj:IsA("\084\101\120\116\076\097\098\101\108") or obj:IsA("\084\101\120\116\066\111\120")) and obj.Visible and obj.Text ~= "" then local _IIlllIlIIl = string.lower(obj.Text) if string.find(_IIlllIlIIl, "\116\104\7855\110\103") or string.find(_IIlllIlIIl, "\100\7883\099\104\032\099\104\117\121\7875\110") or string.find(_IIlllIlIIl, "\116\104\7855\110\103\033") then return true end
+ end
+ end
+ end
+ return false end
+ RunService.Stepped:Connect( function () local _llllIIIIII = _IlIIllIllI.Character if _llllIIIIII and _llllIIIIII:FindFirstChild("\072\117\109\097\110\111\105\100") and _llllIIIIII.Humanoid.Health > 0x0 then _llllIIIIII.Humanoid.WalkSpeed = _G.WalkSpeed _llllIIIIII.Humanoid.JumpPower = _G.JumpPower if _G.AutoEquip then local _IllIllIlII = _IlIIllIllI:FindFirstChild("\066\097\099\107\112\097\099\107") if _IllIllIlII then local _IlIIIIIlIl = _IllIllIlII:FindFirstChildOfClass("\084\111\111\108") if _IlIIIIIlIl then _llllIIIIII.Humanoid:EquipTool(_IlIIIIIlIl) end
+ end
+ end
+ end
+ end
+ ) task.spawn( function () while task.wait(0.05) do if _G.ESPEnabled then for _, enemy in pairs(Players:GetPlayers()) do if enemy ~= _IlIIllIllI and enemy.Character then local _IlllllIlIl = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100") local _IlIIllIlII = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116") if _IlllllIlIl and _IlllllIlIl.Health > 0x0 and _IlIIllIlII then local _IllIlIIIIl = enemy.Character:FindFirstChild("\086\111\114\116\101\120\072\076") if not _IllIlIIIIl then _IllIlIIIIl = Instance.new("\072\105\103\104\108\105\103\104\116") _IllIlIIIIl.Name = "\086\111\114\116\101\120\072\076" _IllIlIIIIl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop _IllIlIIIIl.Parent = enemy.Character end
+ _IllIlIIIIl.FillColor = _G.ESPColor _IllIlIIIIl.OutlineColor = Color3.fromRGB(0xFF, 0xFF, 0xFF) _IllIlIIIIl.FillTransparency = 0.5 local _IIIIIIlllI = _IlIIllIlII:FindFirstChild("\086\111\114\116\101\120\084\114\097\099\107\101\114") if not _IIIIIIlllI then _IIIIIIlllI = Instance.new("\066\105\108\108\098\111\097\114\100\071\117\105") _IIIIIIlllI.Name = "\086\111\114\116\101\120\084\114\097\099\107\101\114" _IIIIIIlllI.AlwaysOnTop = true _IIIIIIlllI.Size = UDim2.new(0x4, 0x0, 0x5, 0x0) local _lIllIllIIl = Instance.new("\070\114\097\109\101") _lIllIllIIl.Name = "\070\114\097\109\101\067\111\108\111\114" _lIllIllIIl.Size = UDim2.new(0x1, 0x0, 0x1, 0x0) _lIllIllIIl.BackgroundTransparency = 0.6 _lIllIllIIl.BorderSizePixel = 0x2 _lIllIllIIl.BorderColor3 = Color3.fromRGB(0xFF, 0xFF, 0xFF) _lIllIllIIl.Parent = _IIIIIIlllI _IIIIIIlllI.Parent = _IlIIllIlII end
+ if _IIIIIIlllI:FindFirstChild("\070\114\097\109\101\067\111\108\111\114") then _IIIIIIlllI.FrameColor.BackgroundColor3 = _G.ESPColor end
+ for _, part in pairs(enemy.Character:GetChildren()) do if part:IsA("\066\097\115\101\080\097\114\116") and part.Name ~= "\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116" and part.Transparency == 0x1 then part.Transparency = 0.5 end
+ end
+ else if enemy.Character:FindFirstChild("\086\111\114\116\101\120\072\076") then enemy.Character.VortexHL:Destroy() end
+ if _IlIIllIlII and _IlIIllIlII:FindFirstChild("\086\111\114\116\101\120\084\114\097\099\107\101\114") then _IlIIllIlII.VortexTracker:Destroy() end
+ end
+ end
+ end
+ else for _, enemy in pairs(Players:GetPlayers()) do if enemy.Character then if enemy.Character:FindFirstChild("\086\111\114\116\101\120\072\076") then enemy.Character.VortexHL:Destroy() end
+ local _IlIIllIlII = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116") if _IlIIllIlII and _IlIIllIlII:FindFirstChild("\086\111\114\116\101\120\084\114\097\099\107\101\114") then _IlIIllIlII.VortexTracker:Destroy() end
+ end
+ end
+ end
+ if _IlIIllIllI.Character then local _IlIllllIIl = _IlIIllIllI.Character local _llIllllIII = _IlIllllIIl:FindFirstChild("\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116") local _IIlIIIIlll = _IlIllllIIl:FindFirstChild("\072\117\109\097\110\111\105\100") local _IlllIIlIlI = _IlIllllIIl:FindFirstChild("\072\101\097\100") if _llIllllIII and _IIlIIIIlll and _IIlIIIIlll.Health > 0x0 and _IlllIIlIlI then local _IlIIIIIlIl = _IlIllllIIl:FindFirstChildOfClass("\084\111\111\108") if _G.AutoRound then local _IIllllllII = false if tick() - _G.LastUIScan > 0.5 then _G.LastUIScan = tick() if _lIIllllIIl() then _G.InMatch = false _IIllllllII = true end
+ end
+ if not _G.InMatch and _IlllIIlIlI.Transparency >= 0.5 and not _IIllllllII then _G.InMatch = true end
+ if _G.InMatch and _IlIIIIIlIl then local _IlIlIIIIlI = false for _, enemy in pairs(Players:GetPlayers()) do if enemy ~= _IlIIllIllI and enemy.Character then local _IlllllIlIl = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100") local _IllIIIIllI = enemy.Character:FindFirstChild("\072\101\097\100") local _IlIIllIlII = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116") if _IlllllIlIl and _IlllllIlIl.Health > 0x0 and _IllIIIIllI and _IlIIllIlII and not enemy.Character:FindFirstChildOfClass("\070\111\114\099\101\070\105\101\108\100") then if _IllIIIIllI.Transparency >= 0.5 or enemy.Character:FindFirstChildOfClass("\084\111\111\108") then local _lIIIIllIlI = (_llIllllIII.Position - _IlIIllIlII.Position).Magnitude _IIlIllIlII(enemy.Character, _lIIIIllIlI) _IlIlIIIIlI = true end
+ end
+ end
+ end
+ if _IlIlIIIIlI and _IlIIIIIlIl.Parent == _IlIllllIIl then _IlIIIIIlIl:Activate() task.wait(0.05) _IlIIIIIlIl:Deactivate() task.wait(0.2) end
+ end
+ end
+ if _G.KillAura and _IlIIIIIlIl then for _, enemy in pairs(Players:GetPlayers()) do if enemy ~= _IlIIllIllI and enemy.Character then local _IlIIllIlII = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116") local _IlllllIlIl = enemy.Character:FindFirstChild("\072\117\109\097\110\111\105\100") if _IlIIllIlII and _IlllllIlIl and _IlllllIlIl.Health > 0x0 and not enemy.Character:FindFirstChildOfClass("\070\111\114\099\101\070\105\101\108\100") then local _lIIIIllIlI = (_llIllllIII.Position - _IlIIllIlII.Position).Magnitude if _lIIIIllIlI <= _G.AuraRange then _IIlIllIlII(enemy.Character, _lIIIIllIlI) end
+ end
+ end
+ end
+ end
+ end
+ end
+ end
+ end
+ ) end
+ )(...)
