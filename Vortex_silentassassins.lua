@@ -1,10 +1,49 @@
---[[ Protected by NgHung ]]
+repeat task.wait() until game:IsLoaded()
 
-( function (...) repeat task.wait() until game:IsLoaded() local Players = game:GetService("\080\108\097\121\101\114\115") local _IIlllllllI = Players.LocalPlayer local _IlIllIlIlI = { ["\086\111\114\116\101\120\095\050\050\097\098\052\057\066\119\107\115\051\056\049\057\066\107\057\097\107"] = nil, ["\086\111\114\116\101\120\095\053\049\102\111\119\110\066\051\057\065\108\051\056\049\074\115\106\099\051\056"] = nil, ["\086\111\114\116\101\120\095\053\056\050\097\049\057\097\106\099\110\119\057\066\107\053\050\119\110\097"] = nil } local _IIIIlllIll = getgenv().KeyInput or "" if _IIIIlllIll == "" then _IIlllllllI:Kick("\066\7841\110\032\099\104\432\097\032\110\104\7853\112\032\107\101\121\033") return end
- if _IlIllIlIlI[_IIIIlllIll] == nil and _IlIllIlIlI[_IIIIlllIll] ~= nil then _IIlllllllI:Kick("\075\101\121\032\107\104\244\110\103\032\104\7907\112\032\108\7879\033") return end
- local _IlIlIlIlll = "\118\111\114\116\101\120\095\107\101\121\095\100\097\116\097\046\106\115\111\110" local HttpService = game:GetService("\072\116\116\112\083\101\114\118\105\099\101") local _llIlIIIlII = {} if isfile and isfile(_IlIlIlIlll) then local _lllIlIIlll = readfile(_IlIlIlIlll) _llIlIIIlII = HttpService:JSONDecode(_lllIlIIlll) end
- if _llIlIIIlII[_IIIIlllIll] then if _llIlIIIlII[_IIIIlllIll] ~= _IIlllllllI.UserId then _IIlllllllI:Kick("\075\101\121\032\110\224\121\032\273\227\032\273\432\7907\099\032\115\7917\032\100\7909\110\103\032\098\7903\105\032\116\224\105\032\107\104\111\7843\110\032\107\104\225\099\033") return end
- else _llIlIIIlII[_IIIIlllIll] = _IIlllllllI.UserId if writefile then writefile(_IlIlIlIlll, HttpService:JSONEncode(_llIlIIIlII)) end
- end
- print("\075\101\121\032\104\7907\112\032\108\7879\033\032\272\097\110\103\032\118\224\111\032\086\111\114\116\101\120\032\072\117\098\046\046\046") loadstring(game:HttpGet("\104\116\116\112\115\058\047\047\114\097\119\046\103\105\116\104\117\098\117\115\101\114\099\111\110\116\101\110\116\046\099\111\109\047\078\103\072\117\110\103\050\055\054\047\083\097\116\084\104\117\084\104\097\109\076\097\110\103\047\109\097\105\110\047\086\111\114\116\101\120\046\108\117\097"))() end
- )(...)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local KEYS = {
+    ["Vortex_22ab49Bwks3819Bk9ak"] = nil,
+    ["Vortex_51fownB39Al381Jsjc38"] = nil,
+    ["Vortex_582a19ajcnw9Bk52wna"] = nil
+}
+
+local inputKey = getgenv().KeyInput or ""
+
+if inputKey == "" then
+    LocalPlayer:Kick("Bạn chưa nhập key!")
+    return
+end
+
+if KEYS[inputKey] == nil and KEYS[inputKey] ~= nil then
+    LocalPlayer:Kick("Key không hợp lệ!")
+    return
+end
+
+local DATA_FILE = "vortex_key_data.json"
+local HttpService = game:GetService("HttpService")
+
+local SavedData = {}
+
+if isfile and isfile(DATA_FILE) then
+    local raw = readfile(DATA_FILE)
+    SavedData = HttpService:JSONDecode(raw)
+end
+
+if SavedData[inputKey] then
+    if SavedData[inputKey] ~= LocalPlayer.UserId then
+        LocalPlayer:Kick("Key này đã được sử dụng bởi tài khoản khác!")
+        return
+    end
+else
+    SavedData[inputKey] = LocalPlayer.UserId
+
+    if writefile then
+        writefile(DATA_FILE, HttpService:JSONEncode(SavedData))
+    end
+end
+
+print("Key hợp lệ! Đang vào Vortex Hub...")
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hungnguyen2k113-debug/SatThuThamLang/main/Vortex.lua"))()
