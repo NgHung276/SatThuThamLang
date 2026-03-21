@@ -7,15 +7,10 @@ local LocalPlayer = Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Vortex Hub - Sát thủ thầm lặng [Premium]",
-    LoadingTitle = "Đang tải Vortex Hub",
+    Name = "Vortex Hub - Sát Thủ Thầm Lặng",
+    LoadingTitle = "Vortex Hub Loading...",
     LoadingSubtitle = "by NgHung",
-    ConfigurationSaving = {
-        Enabled = false
-    },
-    Discord = {
-        Enabled = false
-    },
+    ConfigurationSaving = { Enabled = false },
     KeySystem = false
 })
 
@@ -29,6 +24,17 @@ _G.JumpPower = 50
 _G.AutoEquip = false
 _G.InMatch = false
 _G.LastUIScan = 0
+
+Rayfield.Theme = {
+    Background = Color3.fromRGB(18,18,18),
+    Topbar = Color3.fromRGB(25,25,25),
+    TabBackground = Color3.fromRGB(22,22,22),
+    TabBackgroundSelected = Color3.fromRGB(40,40,40),
+    ElementBackground = Color3.fromRGB(30,30,30),
+    ElementBackgroundHover = Color3.fromRGB(45,45,45),
+    TextColor = Color3.fromRGB(255,255,255),
+    ToggleEnabled = Color3.fromRGB(0,255,140),
+}
 
 local CombatTab = Window:CreateTab("⚔️ Combat", nil)
 local VisualTab = Window:CreateTab("👁️ Visuals", nil)
