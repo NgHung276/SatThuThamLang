@@ -11,7 +11,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 --// WINDOW
 local Window = Rayfield:CreateWindow({
-    Name = "🤫 Vortex Hub | SÁT THỦ THẦM LẶNG",
+    Name = "Vortex Hub by real_NgHung [Premium]",
     LoadingTitle = "Vortex Hub",
     LoadingSubtitle = "Sát Thủ Thầm Lặng [Premium] - By real_NgHung",
     ConfigurationSaving = { Enabled = false },
@@ -112,7 +112,7 @@ MoveTab:CreateSlider({
 })
 
 --// INFO
-InfoTab:CreateLabel("Vortex Hub - by real_NgHung [Premium]")
+InfoTab:CreateLabel("Vortex Hub [Premium]")
 
 --// ===== SYSTEM =====
 
@@ -123,7 +123,7 @@ local function KillTarget(target, dist)
 
     local args = {
         [1] = "AttemptWeaponHit",
-        [2] = {damage = 9999999999999, hitboxSize = Vector3.new(120,120,120)},
+        [2] = {damage = 999999999, hitboxSize = Vector3.new(120,120,120)},
         [3] = {}
     }
 
@@ -139,7 +139,7 @@ RunService.Stepped:Connect(function()
 end)
 
 task.spawn(function()
-    while task.wait(0.001) do
+    while task.wait(0.05) do
         if _G.KillAura then
             local char = LocalPlayer.Character
             if char and char:FindFirstChild("HumanoidRootPart") then
