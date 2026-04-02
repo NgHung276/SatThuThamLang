@@ -112,69 +112,7 @@ MoveTab:CreateSlider({
 })
 
 --// INFO
-InfoTab:CreateLabel("Vortex Hub - Premium Script")
-
---// ===== LOGO UI 🤫 =====
-local ScreenGui = Instance.new("ScreenGui", CoreGui)
-ScreenGui.Name = "VortexLogo"
-
-local Logo = Instance.new("TextButton", ScreenGui)
-Logo.Size = UDim2.new(0,60,0,60)
-Logo.Position = UDim2.new(0.1,0,0.5,0)
-Logo.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Logo.BackgroundTransparency = 0.3
-Logo.Text = "🤫"
-Logo.TextScaled = true
-Logo.BorderSizePixel = 0
-
--- bo tròn
-local corner = Instance.new("UICorner", Logo)
-corner.CornerRadius = UDim.new(1,0)
-
--- drag
-local dragging = false
-local dragInput, startPos, startInput
-
-Logo.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        startInput = input.Position
-        startPos = Logo.Position
-    end
-end)
-
-Logo.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - startInput
-        Logo.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
--- zoom animation khi click
-Logo.MouseButton1Click:Connect(function()
-    Logo:TweenSize(UDim2.new(0,90,0,90),"Out","Quad",0.2,true)
-    Logo.BackgroundTransparency = 0.1
-    wait(0.2)
-    Logo:TweenSize(UDim2.new(0,60,0,60),"Out","Quad",0.2,true)
-    Logo.BackgroundTransparency = 0.3
-end)
+InfoTab:CreateLabel("Vortex Hub - by real_NgHung [Premium]")
 
 --// ===== SYSTEM =====
 
@@ -185,7 +123,7 @@ local function KillTarget(target, dist)
 
     local args = {
         [1] = "AttemptWeaponHit",
-        [2] = {damage = 999999999, hitboxSize = Vector3.new(120,120,120)},
+        [2] = {damage = 9999999999999, hitboxSize = Vector3.new(120,120,120)},
         [3] = {}
     }
 
@@ -201,7 +139,7 @@ RunService.Stepped:Connect(function()
 end)
 
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait(0.001) do
         if _G.KillAura then
             local char = LocalPlayer.Character
             if char and char:FindFirstChild("HumanoidRootPart") then
